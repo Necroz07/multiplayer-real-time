@@ -9,5 +9,4 @@ print("Server is listening on port 12345...")
 while True:
     data, addr = server.recvfrom(1024)
     message= data.decode()
-    print("accquired message from: {addr} with message: {message}")
-    
+    print(f"accquired message from: {addr} with message: {message}")
