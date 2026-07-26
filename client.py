@@ -2,7 +2,7 @@ import socket
 import os
 import msvcrt
 
-os.system("mode con: cols=100 lines=15")
+os.system("mode con: cols=80 lines=30")
 ip = 'localhost'
 port = 12345
 
@@ -31,7 +31,9 @@ while True:
         coords, addr = client.recvfrom(1024)
         x, y= coordsextract(coords)
 
-    print(f"The coordinates are ({x}, {y})")
+    #print(f"The coordinates are ({x}, {y})")
+
+
 
 
 
