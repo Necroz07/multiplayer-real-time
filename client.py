@@ -1,16 +1,10 @@
-import socket
-import os
-import msvcrt
-import time
+import socket, os, msvcrt, time
 
-os.system("mode con: cols=80 lines=30")
+os.system("mode con: cols=85 lines=37")
 ip = 'localhost'
 port = 12345
 
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-x, y = 40, 15
-
 
 def map(playerx, playery, width=78, height=26):
     os.system('cls')
@@ -28,20 +22,27 @@ def map(playerx, playery, width=78, height=26):
         board+="\n"
     print(board, end="")
             
-            
-
-
-
 
 def sendcoords(key):
-    msg = f"{key}"
-    print(msg)
+    msg = {"type":"key", "key":f"{key}"}
+
     client.sendto(msg.encode(), (ip, port))
 
 def coordsextract(coords):
     coords=coords.decode()
     x, y= coords.split(',')
     return int(x), int(y)
+
+
+
+user=input("Enter your name:\t")
+
+join={"type":"join", "user":f"{user}"}
+client.sendto(join.encode(), (ip, port))
+
+coords, addr = client.recvfrom(1024)
+x, y = coordsextract(coords)
+
 
 
 while True:
