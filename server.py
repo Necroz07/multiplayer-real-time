@@ -10,12 +10,13 @@ server.bind((ip, port))
 def updatecoords(x, y, addr):
     coords=f"{x},{y}"
     server.sendto(coords.encode(), addr)
+    print(f"new coords sent {x}, {y}")
 
 
 
 print("Server is listening on port 12345...")
 
-x, y= 0, 0
+x, y= 40, 15
 
 while True:
     data, addr = server.recvfrom(1024)
