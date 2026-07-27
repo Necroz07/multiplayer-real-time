@@ -41,16 +41,17 @@ def sendcoords(key):
 def coordsextract(coords):
     coords=coords.decode()
     x, y= coords.split(',')
-    return x, y
+    return int(x), int(y)
 
 
 while True:
 
     if msvcrt.kbhit():
-        key = msvcrt.getch().decode("utf-8").lower()        
-        sendcoords(key)
+        key = msvcrt.getch().decode("utf-8").lower()
+        if key in ('w', 'a', 's', 'd'):
+            sendcoords(key)
 
-        coords, addr = client.recvfrom(1024)
+            coords, addr = client.recvfrom(1024)
         x, y= coordsextract(coords)
 
     map(x, y)
