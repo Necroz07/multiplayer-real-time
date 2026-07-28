@@ -1,9 +1,13 @@
-import socket
+import socket, json, random
 
 ip = 'localhost'
 port = 12345
 
-x, y = 40, 15
+spawnable_x, spawnable_y = 40, 15
+score=""
+
+playerid=-1
+players={}
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -11,6 +15,7 @@ server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server.bind((ip, port))
 
 def updatecoords(x, y, key, addr):
+
     if key == 'w' and y>1:
         y-=1
     elif key == 'a' and x>2:
@@ -27,11 +32,49 @@ def updatecoords(x, y, key, addr):
 
 
 
+
+def initialize(players, spawnable_x, spawnable_y): 
+    collision=False
+    while True:
+        spawnable_x= random.randint(2, 76)
+        spawnable_y= random.randint(1, 24)
+
+        for i in players:
+            while (spawnable_x==players[i]["x"] and spawnable_y==players[i]["y"]):
+                collision=True
+                break
+        
+        if not collision:
+            return spawnable_x, spawnable_y
+                 
+
+
+
+
 print("Server is listening on port 12345...")
 
 while True:
-    data, addr = server.recvfrom(1024)
-    key = data.decode()
 
-    x, y= updatecoords(x, y, key, addr)
-    
+    data, addr = server.recvfrom(1024)
+    if data["type"]=="join":
+        data = json.loads(data.decode())
+        user = data["user"]
+
+        playerid+=1
+
+        spawnable_x, spawnable_y = initialize(players, spawnable_x, spawnable_y)
+
+        players[playerid]={
+                "user":f"{user}", 
+                "x":f"{spawnable_x}",
+                "y":f"{spawnable_y}",
+                "score":0}
+
+        coords=f"{spawnable_x},{spawnable_y}"
+        server.sendto(coords.encode(), addr)
+        
+
+
+    if data["type"]=="key":
+        key = json.loads(data.decode())
+        x, y= updatecoords(x, y, key["key"], addr)
