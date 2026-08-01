@@ -1,4 +1,4 @@
-import socket, os, msvcrt, time
+import socket, os, msvcrt, time, json
 
 os.system("mode con: cols=85 lines=37")
 ip = 'localhost'
@@ -6,7 +6,7 @@ port = 12345
 
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-def map(playerx, playery, width=78, height=26):
+def mapdraw(playerx, playery, width=78, height=26):
     os.system('cls')
     board=""
     for y in range(height):
@@ -23,14 +23,13 @@ def map(playerx, playery, width=78, height=26):
     print(board, end="")
             
 
-def sendcoords(key):
-    msg = {"type":"key", "key":f"{key}"}
-
-    client.sendto(msg.encode(), (ip, port))
+def sendcoords(key, playerid):
+    msg = {"type":"key","playerid":f"{playerid}", "key":f"{key}"}
+    client.sendto(json.dumps(msg).encode(), (ip, port))
 
 def coordsextract(coords):
-    coords=coords.decode()
-    x, y= coords.split(',')
+    coords=json.loads(coords.decode())
+    x, y=data["x"], data["y"]
     return int(x), int(y)
 
 
@@ -38,10 +37,14 @@ def coordsextract(coords):
 user=input("Enter your name:\t")
 
 join={"type":"join", "user":f"{user}"}
-client.sendto(join.encode(), (ip, port))
+client.sendto(json.dumps(join).encode(), (ip, port))
 
-coords, addr = client.recvfrom(1024)
-x, y = coordsextract(coords)
+data, addr = client.recvfrom(1024)
+data=json.loads(data.decode())
+
+playerid=data["playerid"]
+x, y=int(data["x"]), int(data["y"])
+mapdraw(x, y)
 
 
 
@@ -50,20 +53,13 @@ while True:
     if msvcrt.kbhit():
         key = msvcrt.getch().decode("utf-8").lower()
         if key in ('w', 'a', 's', 'd'):
-            sendcoords(key)
+            sendcoords(key, playerid)
 
-            coords, addr = client.recvfrom(1024)
-        x, y= coordsextract(coords)
+            data, addr = client.recvfrom(1024)
+            x, y= coordsextract(data)
 
-    map(x, y)
+    mapdraw(x, y)
     time.sleep(0.1)
-
-
-    
+  
 
     #print(f"The coordinates are ({x}, {y})")
-
-
-
-
-
