@@ -35,7 +35,7 @@ def mapdraw(players, yourid, width=78, height=26):
         you=""
         if yourid==pid:
             you+="(You)"
-        scoreboard+=f"{player['user']} ({chr(ord('A')+int(pid))}) {you} = {player['score']}\n"
+        scoreboard+=f"{player['user']} ({chr(ord('A')+int(pid))}) {you} = {player['score']}\n "
     print(board,"SCORE:\n",scoreboard, end="")
             
 
