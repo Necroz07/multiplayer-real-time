@@ -6,9 +6,12 @@ port = 12345
 
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+client.settimeout(0.1)
+
 def mapdraw(players, yourid, width=78, height=26):
     os.system('cls')
     board=""
+    scoreboard=""
 
     for y in range(height):
         for x in range(width):
@@ -27,13 +30,12 @@ def mapdraw(players, yourid, width=78, height=26):
                 else:
                     board+=" "
         board+="\n"
-        scoreboard=""
 
-        for pid, player in players.items():
-            you=""
-            if yourid==pid:
-                you+="(You)"
-            scoreboard+=f"{player["user"]} ({chr(ord("A")+int(pid))}) {you} = {player["score"]}\n"
+    for pid, player in players.items():
+        you=""
+        if yourid==pid:
+            you+="(You)"
+        scoreboard+=f"{player['user']} ({chr(ord('A')+int(pid))}) {you} = {player['score']}\n"
     print(board,"SCORE:\n",scoreboard, end="")
             
 
@@ -71,21 +73,23 @@ while True:
 
     if msvcrt.kbhit():
         key = msvcrt.getch().decode("utf-8").lower()
-        print("fjeiore")
-        time.sleep(3)
         if key in ('w', 'a', 's', 'd'):
 
             sendcoords(key, yourid)
 
-            print("lore stream")
-            time.sleep(3)
+            try:
+                data, addr = client.recvfrom(4096)
+                players, _= state_extract(data)
 
-            data, addr = client.recvfrom(1024)
-
-            players, _= state_extract(data)
+            except socket.timeout:
+                pass
 
     mapdraw(players, yourid)
     time.sleep(0.1)
 
-    data, addr = client.recvfrom(1024)
-    players, _=state_extract(data)
+    try:
+        data, addr = client.recvfrom(4096)
+        players, _=state_extract(data)
+
+    except socket.timeout:
+        pass
