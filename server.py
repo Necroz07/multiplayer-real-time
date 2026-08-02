@@ -8,13 +8,17 @@ score=""
 
 playerid=-1
 players={}
+clients={}
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 server.bind((ip, port))
 
-def updatecoords(player_id, x, y, key, addr):
+def updatecoords(players, playerid, key, addr):
+
+    x=int(players[id]["x"])
+    y=int(players[id]["y"])
 
     if key == 'w' and y>1:
         y-=1
@@ -25,10 +29,18 @@ def updatecoords(player_id, x, y, key, addr):
     elif key == 'd' and x<76:
         x+=2
 
-    updated_coords= {"player_id":str(player_id), type:"coords", "x":str(x), "y":str(y)} 
-    server.sendto(updated_coords.encode(), addr)
-    print(f"new coords sent {x}, {y}")
-    return x, y
+    players[playerid]["x"]=str(x)
+    players[playerid]["y"]=str(y)
+
+
+    send_state(players, playerid, addr)
+
+
+
+def send_state(players, playerid, addr):
+    msg = {"type":"state", "yourid":str(playerid), "players":players}
+    server.sendto((json.dumps(msg)).encode(), addr)
+    
 
 
 
@@ -49,8 +61,6 @@ def initialize(players, spawnable_x, spawnable_y):
                  
 
 
-
-
 print("Server is listening on port 12345...")
 
 while True:
@@ -65,29 +75,31 @@ while True:
 
         spawnable_x, spawnable_y = initialize(players, spawnable_x, spawnable_y)
 
-        players[playerid]=    {
-                "user":f"{user}", 
-                "x":f"{spawnable_x}",
-                "y":f"{spawnable_y}",
-                "score":0}
-
-        updated_coords= {"player_id":str(playerid),
-                          "type":"coords", 
-                          "x":str(spawnable_x),
-                            "y":str(spawnable_y)} 
+        players[playerid]= {
+                            "user":f"{user}", 
+                            "x":f"{spawnable_x}",
+                            "y":f"{spawnable_y}",
+                            "score":str(0)
+                            }
         
-        server.sendto(json.dumps(updated_coords).encode(), addr)
+        clients[playerid]=addr
+        print("New player joined", playerid)
+
+        send_state(players, playerid, addr)
         
 
 
     if data["type"]=="key":
-
+        print("key update recieved")
         id=int(data["playerid"])
-        x=players[id]["x"]
-        y=players[id]["y"]
-    
-        
-        x, y= updatecoords(id, x, y, data["key"], addr)
+        updatecoords(players, id, data["key"], addr)
 
-        players[id]["x"]=x
-        players[id]["y"]=y
+
+
+# STATE UPDATE
+    if clients:
+
+        for pid, addr in clients.items():
+            send_state(players, pid, addr)
+            
+            print("state update for", playerid)
