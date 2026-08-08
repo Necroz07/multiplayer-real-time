@@ -9,43 +9,78 @@ score=""
 playerid=-1
 players={}
 clients={}
+misc={}
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 server.bind((ip, port))
 
-def updatecoords(players, playerid, key, addr):
+def updatecoords(players, playerid, key, addr, misc):
 
-    x=int(players[id]["x"])
-    y=int(players[id]["y"])
+    minx, maxx= 2, 76
+    miny, maxy= 1, 24
 
-    if key == 'w' and y>1:
+    x=int(players[playerid]["x"])
+    y=int(players[playerid]["y"])
+
+    coinx=int(misc["coinx"])
+    coiny=int(misc["coiny"])
+
+    if key == 'w' and y>miny:
         y-=1
-    elif key == 'a' and x>2:
+    elif key == 'a' and x>minx:
         x-=2
-    elif key == 's' and y<24:
+    elif key == 's' and y<maxy:
         y+=1
-    elif key == 'd' and x<76:
+    elif key == 'd' and x<maxx:
         x+=2
 
-    players[playerid]["x"]=str(x)
-    players[playerid]["y"]=str(y)
 
+    collision=False
+    scored=False
+    for i in players:
+        if i==playerid:
+            continue
+        if (x==int(players[i]["x"]) and y==int(players[i]["y"])):
+            collision=True
+            break
 
-    send_state(players, playerid, addr)
+    if (x==coinx) and (y==coiny):
+        
+        score=int(players[playerid]["score"])
+        score+=1
+        players[playerid]["score"]=str(score)
+        misc.pop("coinx")
+        misc.pop("coiny")
+     
+    if not collision:
 
+        players[playerid]["x"]=str(x)
+        players[playerid]["y"]=str(y)
 
+    if scored:
+        spawn_coin(players, misc)
 
-def send_state(players, playerid, addr):
-    msg = {"type":"state", "yourid":str(playerid), "players":players}
-    server.sendto((json.dumps(msg)).encode(), addr)
+    send_state(players, playerid, addr, misc)
+
     
 
 
 
+def send_state(players, playerid, addr, misc):
+    msg = {"type":"state", "yourid":str(playerid), "players":players, "misc":misc}
+    server.sendto((json.dumps(msg)).encode(), addr)
+    
 
-def initialize(players, spawnable_x, spawnable_y): 
+def spawn_coin(players, misc):
+    x, y = initialize(players)
+    misc["coinx"]=str(x)
+    misc["coiny"]=str(y)
+
+
+
+def initialize(players): 
     collision=False
     while True:
         spawnable_x= random.randint(2, 76)
@@ -73,7 +108,7 @@ while True:
 
         playerid+=1
 
-        spawnable_x, spawnable_y = initialize(players, spawnable_x, spawnable_y)
+        spawnable_x, spawnable_y = initialize(players)
 
         players[playerid]= {
                             "user":f"{user}", 
@@ -85,7 +120,7 @@ while True:
         clients[playerid]=addr
         print("New player joined", playerid)
 
-        send_state(players, playerid, addr)
+        send_state(players, playerid, addr, misc)
         
 
 
@@ -100,6 +135,6 @@ while True:
     if clients:
 
         for pid, addr in clients.items():
-            send_state(players, pid, addr)
+            send_state(players, pid, addr, misc)
             
             print("state update for", playerid)
