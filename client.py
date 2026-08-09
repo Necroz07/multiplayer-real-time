@@ -21,7 +21,7 @@ def mapdraw(players, yourid, misc, width=78, height=26):
     coinx, coiny= int(misc.get("coinx")), int(misc.get("coiny"))
     winner=None
     if win_id:
-        winner=players[int(win_id)]["user"]
+        winner=players[(win_id)]["user"]
 
     for y in range(height):
         for x in range(width):

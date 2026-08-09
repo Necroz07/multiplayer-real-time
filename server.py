@@ -57,6 +57,7 @@ def updatecoords(players, playerid, key, addr, misc):
         players[playerid]["score"]=str(score)
         misc.pop("coinx")
         misc.pop("coiny")
+        spawn_coin(players, misc)
      
     if not collision:
 
