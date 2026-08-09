@@ -1,4 +1,4 @@
-import socket, json, random
+import socket, json, random, time, datetime
 
 ip = 'localhost'
 port = 12345
@@ -26,6 +26,10 @@ def updatecoords(players, playerid, key, addr, misc):
 
     coinx=int(misc["coinx"])
     coiny=int(misc["coiny"])
+
+    if misc["phase"]=="finish":
+        return send_state(players, playerid, addr, misc)
+    
 
     if key == 'w' and y>miny:
         y-=1
@@ -98,7 +102,26 @@ def initialize(players):
 
 print("Server is listening on port 12345...")
 
+timerend=time.time() + 120
+spawn_coin(players, misc)
+
+misc["timerend"]=str(timerend)
+
 while True:
+
+    if time.time() > timerend:
+
+        highestscore=max(players, key=lambda playerid: int(players[playerid]["score"]))
+        misc["winner"]=str(highestscore)
+        spawn_coin(players, misc)
+        timerend=time.time() + 123
+        misc["timerend"]=str(timerend)
+
+        misc["phase"]="finish"
+
+    if (time.time()-timerend)<120:
+        misc["phase"]="playing"
+        misc["timerend"]=str(timerend)
 
     data, addr = server.recvfrom(1024)
     data = json.loads(data.decode())
@@ -127,7 +150,7 @@ while True:
     if data["type"]=="key":
         print("key update recieved")
         id=int(data["playerid"])
-        updatecoords(players, id, data["key"], addr)
+        updatecoords(players, id, data["key"], addr, misc)
 
 
 

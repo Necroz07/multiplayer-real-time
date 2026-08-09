@@ -8,10 +8,20 @@ client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 client.settimeout(0.1)
 
-def mapdraw(players, yourid, width=78, height=26):
+def mapdraw(players, yourid, misc, width=78, height=26):
     os.system('cls')
     board=""
     scoreboard=""
+
+    remaining= (float(misc["timerend"])-time.time())
+    minutes=remaining//60
+    seconds=remaining%60
+    win_id=misc.get("winner")
+
+    coinx, coiny= int(misc.get("coinx")), int(misc.get("coiny"))
+    winner=None
+    if win_id:
+        winner=players[int(win_id)]["user"]
 
     for y in range(height):
         for x in range(width):
@@ -21,12 +31,15 @@ def mapdraw(players, yourid, width=78, height=26):
                 if x==int(player["x"]) and y==int(player["y"]):
                     board+=chr(ord('A')+int(playerid))
                     drawn=True
+                    break
 
             if not drawn:
                 if x==0 or x==(width-1):
                     board+="|"
                 elif y==0 or y==(height-1):
                     board+="—"
+                elif (x==coinx and y==coiny):
+                    board+="0"
                 else:
                     board+=" "
         board+="\n"
@@ -35,8 +48,8 @@ def mapdraw(players, yourid, width=78, height=26):
         you=""
         if yourid==pid:
             you+="(You)"
-        scoreboard+=f"{player['user']} ({chr(ord('A')+int(pid))}) {you} = {player['score']}\n "
-    print(board,"SCORE:\n",scoreboard, end="")
+        scoreboard+=f"{player['user']} ({chr(ord('A')+int(pid))}) {you} = {player['score']}\n"
+    print(board,f"\t{minutes}:{seconds}\n""SCORE:\n",scoreboard,f"\nWinner:{winner}\n", end="")
             
 
 def sendcoords(key, playerid):
@@ -49,8 +62,8 @@ def state_extract(data):
     data=json.loads(data.decode())
     players=data["players"]
     yourid=data["yourid"]
-
-    return players, yourid
+    misc=data["misc"]
+    return players, yourid, misc
 
 
 
@@ -63,9 +76,9 @@ client.sendto(json.dumps(join).encode(), (ip, port))
 
 data, addr = client.recvfrom(1024)
 
-players, yourid = state_extract(data)
+players, yourid, misc = state_extract(data)
 
-mapdraw(players, yourid)
+mapdraw(players, yourid, misc)
 
 
 
@@ -79,17 +92,17 @@ while True:
 
             try:
                 data, addr = client.recvfrom(4096)
-                players, _= state_extract(data)
+                players, _, misc= state_extract(data)
 
             except socket.timeout:
                 pass
 
-    mapdraw(players, yourid)
+    mapdraw(players, yourid, misc)
     time.sleep(0.1)
 
     try:
         data, addr = client.recvfrom(4096)
-        players, _=state_extract(data)
+        players, _, misc = state_extract(data)
 
     except socket.timeout:
         pass
