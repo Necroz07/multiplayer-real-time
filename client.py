@@ -14,8 +14,8 @@ def mapdraw(players, yourid, misc, width=78, height=26):
     scoreboard=""
 
     remaining= (float(misc["timerend"])-time.time())
-    minutes=remaining//60
-    seconds=remaining%60
+    minutes=int(remaining//60)
+    seconds=int(remaining%60)
     win_id=misc.get("winner")
 
     coinx, coiny= int(misc.get("coinx")), int(misc.get("coiny"))

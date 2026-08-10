@@ -34,11 +34,11 @@ def updatecoords(players, playerid, key, addr, misc):
     if key == 'w' and y>miny:
         y-=1
     elif key == 'a' and x>minx:
-        x-=2
+        x-=1
     elif key == 's' and y<maxy:
         y+=1
     elif key == 'd' and x<maxx:
-        x+=2
+        x+=1
 
 
     collision=False
@@ -117,6 +117,9 @@ while True:
         spawn_coin(players, misc)
         timerend=time.time() + 123
         misc["timerend"]=str(timerend)
+
+        for i in players:
+            i["score"]=str(0)
 
         misc["phase"]="finish"
 
