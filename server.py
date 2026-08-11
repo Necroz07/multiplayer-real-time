@@ -18,8 +18,8 @@ server.bind((ip, port))
 
 def updatecoords(players, playerid, key, addr, misc):
 
-    minx, maxx= 2, 76
-    miny, maxy= 1, 24
+    minx, maxx= 2, 58
+    miny, maxy= 1, 23
 
     x=int(players[playerid]["x"])
     y=int(players[playerid]["y"])
@@ -88,8 +88,8 @@ def spawn_coin(players, misc):
 def initialize(players): 
     collision=False
     while True:
-        spawnable_x= random.randint(2, 76)
-        spawnable_y= random.randint(1, 24)
+        spawnable_x= random.randint(2, 58)
+        spawnable_y= random.randint(1, 23)
 
         for i in players:
             while (spawnable_x==players[i]["x"] and spawnable_y==players[i]["y"]):

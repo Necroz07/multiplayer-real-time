@@ -8,7 +8,7 @@ client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 client.settimeout(0.1)
 
-def mapdraw(players, yourid, misc, width=78, height=26):
+def mapdraw(players, yourid, misc, width=58, height=26):
     os.system('cls')
     board=""
     scoreboard=""
