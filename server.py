@@ -114,12 +114,14 @@ while True:
 
         highestscore=max(players, key=lambda playerid: int(players[playerid]["score"]))
         misc["winner"]=str(highestscore)
+        misc["winner_score"]=str(highestscore["score"])
+        
         spawn_coin(players, misc)
         timerend=time.time() + 123
         misc["timerend"]=str(timerend)
 
-        for i in players:
-            i["score"]=str(0)
+        for k, val in players.items():
+            val["score"]=str(0)
 
         misc["phase"]="finish"
 

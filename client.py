@@ -8,6 +8,62 @@ client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 client.settimeout(0.1)
 
+
+
+
+def transition(char, width=58, height=26):
+    os.system('cls')
+    board=""
+
+    for y in range(height):
+        for x in range(width):
+
+            if x==0 or x==(width-1):
+                board+="|"
+            elif y==0 or y==(height-1):
+                board+="—"
+            elif x==26 and y==6:
+                board+=" "
+            else:
+                board+=str(char)
+
+        board+="\n"
+
+        print(board, end="")
+
+
+
+
+
+
+
+def mapdrawfin(players, misc, width=58, height=26):
+    os.system('cls')
+    board=""
+    
+    win_id=misc.get("winner")
+    highsc=misc["winner_score"]
+
+    if win_id:
+        winner=players[(win_id)]["user"]
+
+    for y in range(height):
+        for x in range(width):
+
+            if x==0 or x==(width-1):
+                board+="|"
+            elif y==0 or y==(height-1):
+                board+="—"
+            elif x==26 and y==6:
+                board+=f"Winner:{winner} : {highsc}"
+            else:
+                board+=" "
+        board+="\n"
+
+        print(board, end="")
+            
+
+
 def mapdraw(players, yourid, misc, width=58, height=26):
     os.system('cls')
     board=""
@@ -78,8 +134,8 @@ data, addr = client.recvfrom(1024)
 
 players, yourid, misc = state_extract(data)
 
-mapdraw(players, yourid, misc)
-
+if misc["phase"]=="playing":
+    mapdraw(players, yourid, misc)
 
 
 while True:
@@ -97,7 +153,11 @@ while True:
             except socket.timeout:
                 pass
 
-    mapdraw(players, yourid, misc)
+
+    if misc["phase"]=="playing":
+        mapdraw(players, yourid, misc)
+
+            
     time.sleep(0.1)
 
     try:
