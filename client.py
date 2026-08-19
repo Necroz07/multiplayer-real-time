@@ -33,10 +33,6 @@ def transition(char, width=58, height=26):
 
 
 
-
-
-
-
 def mapdrawfin(players, misc, width=58, height=26):
     os.system('cls')
     board=""
@@ -138,6 +134,8 @@ if misc["phase"]=="playing":
     mapdraw(players, yourid, misc)
 
 
+trans_start=False
+
 while True:
 
     if msvcrt.kbhit():
@@ -156,7 +154,17 @@ while True:
 
     if misc["phase"]=="playing":
         mapdraw(players, yourid, misc)
+        trans_start=False
+        
 
+    elif misc["phase"]=="finish" and trans_start==False:
+        trans_start=True
+        chars=["@", "$", "#", "&"]
+        for i in chars:
+            transition(i)
+            time.sleep(0.05)
+        mapdrawfin(players, misc)
+        time.sleep(0.9)
             
     time.sleep(0.1)
 

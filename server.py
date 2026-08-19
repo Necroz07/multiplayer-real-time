@@ -104,20 +104,23 @@ def initialize(players):
 print("Server is listening on port 12345...")
 
 timerend=time.time() + 120
+finishend=timerend
 spawn_coin(players, misc)
 
 misc["timerend"]=str(timerend)
+misc["phase"]="playing"
 
 while True:
 
-    if time.time() > timerend:
+    if time.time() >= timerend:
 
-        highestscore=max(players, key=lambda playerid: int(players[playerid]["score"]))
-        misc["winner"]=str(highestscore)
-        misc["winner_score"]=str(highestscore["score"])
+        winid=max(players, key=lambda playerid: int(players[playerid]["score"]))
+        misc["winner"]=str(winid)
+        misc["winner_score"]=str(players[winid]["score"])
         
         spawn_coin(players, misc)
-        timerend=time.time() + 123
+        timerend=time.time() + 120
+        finishend=time.time() + 125
         misc["timerend"]=str(timerend)
 
         for k, val in players.items():
@@ -125,7 +128,7 @@ while True:
 
         misc["phase"]="finish"
 
-    if (time.time()-timerend)<120:
+    if (time.time()>=finishend):
         misc["phase"]="playing"
         misc["timerend"]=str(timerend)
 
