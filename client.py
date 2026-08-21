@@ -29,7 +29,7 @@ def transition(char, width=58, height=26):
 
         board+="\n"
 
-        print(board, end="")
+    print(board, end="")
 
 
 
@@ -56,7 +56,7 @@ def mapdrawfin(players, misc, width=58, height=26):
                 board+=" "
         board+="\n"
 
-        print(board, end="")
+    print(board, end="")
             
 
 
@@ -79,6 +79,7 @@ def mapdraw(players, yourid, misc, width=58, height=26):
         for x in range(width):
 
             drawn=False
+            #newplay= dict(sorted(data.items(), key=lambda playerid: int(players[playerid]["score"])))
             for playerid, player in players.items():
                 if x==int(player["x"]) and y==int(player["y"]):
                     board+=chr(ord('A')+int(playerid))
@@ -162,7 +163,7 @@ while True:
         chars=["@", "$", "#", "&"]
         for i in chars:
             transition(i)
-            time.sleep(0.05)
+            time.sleep(0.3)
         mapdrawfin(players, misc)
         time.sleep(0.9)
             

@@ -104,7 +104,7 @@ def initialize(players):
 print("Server is listening on port 12345...")
 
 timerend=time.time() + 120
-finishend=timerend
+finishend=None
 spawn_coin(players, misc)
 
 misc["timerend"]=str(timerend)
@@ -112,25 +112,29 @@ misc["phase"]="playing"
 
 while True:
 
-    if time.time() >= timerend:
+    if misc["phase"]=="playing":
 
-        winid=max(players, key=lambda playerid: int(players[playerid]["score"]))
-        misc["winner"]=str(winid)
-        misc["winner_score"]=str(players[winid]["score"])
+        if time.time() >= timerend:
+
+            winid=max(players, key=lambda playerid: int(players[playerid]["score"]))
+            misc["winner"]=str(winid)
+            misc["winner_score"]=str(players[winid]["score"])
         
-        spawn_coin(players, misc)
-        timerend=time.time() + 120
-        finishend=time.time() + 125
-        misc["timerend"]=str(timerend)
+            spawn_coin(players, misc)
+            finishend=time.time() + 5
+            misc["timerend"]=str(timerend)
 
-        for k, val in players.items():
-            val["score"]=str(0)
+            for k, val in players.items():
+                val["score"]=str(0)
 
-        misc["phase"]="finish"
+            misc["phase"]="finish"
 
-    if (time.time()>=finishend):
-        misc["phase"]="playing"
-        misc["timerend"]=str(timerend)
+    elif misc["phase"]=="finish":
+
+        if (time.time()>=finishend):
+            misc["phase"]="playing"
+            timerend=time.time() + 120
+            misc["timerend"]=str(timerend)
 
     data, addr = server.recvfrom(1024)
     data = json.loads(data.decode())
